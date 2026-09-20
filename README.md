@@ -37,8 +37,19 @@ Only the coverage target mounts its report directory writable. The image is pull
 by the runtime when needed; no local image build is required.
 
 For host tests, install Bash 4.4+, GNU make, GNU coreutils, jq and bats-core 1.7+,
-then run `make test-host`. On macOS, put Homebrew Bash and GNU coreutils ahead of
-the system tools in `PATH`; Apple's Bash 3.2 and BSD `mv` are not supported.
+then run `make test-host`. On macOS, use Homebrew Bash and expose only GNU `mv`
+and `timeout`; leave the native `stat` available to the permission assertions.
+Do not prepend coreutils' whole `libexec/gnubin` directory to `PATH`.
+Apple's Bash 3.2 and BSD `mv` are not supported. With the tools installed:
+
+```sh
+coreutils_bin="$(brew --prefix coreutils)/bin"
+host_tools=$(mktemp -d)
+ln -s "$coreutils_bin/gmv" "$host_tools/mv"
+ln -s "$coreutils_bin/gtimeout" "$host_tools/timeout"
+PATH="$host_tools:$(brew --prefix)/bin:$PATH" make test-host
+```
+
 ShellCheck is needed for `make lint`. Host tests have mock guards against accidental
 uploads, but only the container provides network isolation.
 

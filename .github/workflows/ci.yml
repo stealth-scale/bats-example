@@ -94,8 +94,14 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install bash coreutils jq
+          # Only mv and timeout need GNU semantics. Keep macOS stat: bats-expect
+          # selects its permission-query flags by OS, not by the binary on PATH.
+          coreutils_bin="$(brew --prefix coreutils)/bin"
+          host_tools=$(mktemp -d "$RUNNER_TEMP/bats-example-tools.XXXXXXXX")
+          ln -s "$coreutils_bin/gmv" "$host_tools/mv"
+          ln -s "$coreutils_bin/gtimeout" "$host_tools/timeout"
           echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
-          echo "$(brew --prefix coreutils)/libexec/gnubin" >> "$GITHUB_PATH"
+          echo "$host_tools" >> "$GITHUB_PATH"
       - name: Install bats-core ${{ matrix.bats }}
         run: |
           bats_source=$(mktemp -d)

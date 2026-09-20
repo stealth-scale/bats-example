@@ -14,7 +14,8 @@ make test-host
 
 Container tests support Podman and Docker. Host tests additionally require Bash 4.4+,
 GNU coreutils, jq and bats-core 1.7+ on PATH. Use the shared image when you need a
-network-isolated or version-specific run.
+network-isolated or version-specific run. On macOS, follow the README's selective
+GNU `mv`/`timeout` setup and keep native `stat`; do not replace the whole userland.
 
 ## Code and test conventions
 

@@ -4,6 +4,19 @@ bats_load_library example
 setup() { common_setup; }
 teardown() { common_teardown; }
 
+@test "host tools: GNU mv with platform stat -> reads real file permissions" {
+    run mv --version
+    assert_success
+    assert_output --partial 'GNU coreutils'
+    # bats-expect chooses stat's flags by OS. In particular, macOS must keep BSD stat.
+    local probe="${BATS_TEST_TMPDIR}/permission probe"
+    printf probe > "${probe}"
+    chmod 640 "${probe}"
+    assert_file_permission 640 "${probe}"
+    chmod 600 "${probe}"
+    assert_file_permission 600 "${probe}"
+}
+
 @test "release::internal::require_bash: version boundaries -> rejects unsupported runtimes" {
     run_matrix release::internal::require_bash <<'CASES'
         3 | 2 | 2 | requires Bash 4.4

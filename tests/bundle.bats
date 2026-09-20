@@ -124,10 +124,61 @@ teardown() { common_teardown; }
 }
 
 @test "release::prepare: failed rename -> removes staging and leaves no partial bundle" {
-    mock mv '*' 'return 74'
+    local result
+    for result in 1 74; do
+        mock mv '*' "return ${result}"
+        run release::prepare v1.2.3 production "${BUNDLE_DIR}"
+        assert_failure "${result}"
+        refute_dir_exists "${BUNDLE_DIR}"
+        run find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name '.releasectl.*'
+        assert_success
+        assert_output ''
+    done
+}
+
+@test "release::prepare: no-clobber status variants -> normalizes directory collisions to 73" {
+    local result destination
+    for result in 0 1; do
+        destination="${BATS_TEST_TMPDIR}/competing directory ${result}"
+        # shellcheck disable=SC2016  # simulate both GNU mv skip statuses at the rename boundary
+        mock mv '*' 'mkdir -- "$5" || return; printf keep > "$5/marker";'" return ${result}"
+        run release::prepare v1.2.3 production "${destination}"
+        assert_failure 73
+        assert_output "destination already exists: ${destination}"
+        assert_file_contains "${destination}/marker" keep
+        refute_file_exists "${destination}/manifest.json"
+        refute_file_exists "${destination}/plan.txt"
+        run find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name '.releasectl.*'
+        assert_success
+        assert_output ''
+    done
+    assert_called_times mv 2
+}
+
+@test "release::prepare: no-clobber status variants -> preserves competing dangling symlinks" {
+    local result destination
+    for result in 0 1; do
+        destination="${BATS_TEST_TMPDIR}/competing link ${result}"
+        # shellcheck disable=SC2016  # a dangling link must count as an existing destination
+        mock mv '*' 'ln -s "$BATS_TEST_TMPDIR/absent" "$5" || return;'" return ${result}"
+        run release::prepare v1.2.3 production "${destination}"
+        assert_failure 73
+        assert_output "destination already exists: ${destination}"
+        assert_symlink_to "${BATS_TEST_TMPDIR}/absent" "${destination}"
+        refute_dir_exists "${destination}"
+        run find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name '.releasectl.*'
+        assert_success
+        assert_output ''
+    done
+    assert_called_times mv 2
+}
+
+@test "release::prepare: unrelated rename error with a competing path -> preserves the I/O status" {
+    # shellcheck disable=SC2016  # do not normalize arbitrary failures just because a path appeared
+    mock mv '*' 'mkdir -- "$BUNDLE_DIR" || return; return 74'
     run release::prepare v1.2.3 production "${BUNDLE_DIR}"
     assert_failure 74
-    refute_dir_exists "${BUNDLE_DIR}"
+    assert_dir_empty "${BUNDLE_DIR}"
     run find "${BATS_TEST_TMPDIR}" -maxdepth 1 -name '.releasectl.*'
     assert_success
     assert_output ''

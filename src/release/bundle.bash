@@ -30,8 +30,16 @@ release::prepare() (
     trap 'exit 143' TERM
     printf '%s\n' "${manifest}" > "${stage}/manifest.json" || return
     printf '%s\n' "${plan}" > "${stage}/plan.txt" || return
-    mv -T -n -- "${stage}" "${destination}" || return
-    # Some GNU mv versions return success after skipping a no-clobber move.
+    mv -T -n -- "${stage}" "${destination}" || {
+        local result=$?
+        # GNU coreutils 9.4 reports a skipped move as failure. Normalize only
+        # status 1 with both paths still present; preserve unrelated I/O errors.
+        if (( result != 1 )) || [[ ! -d "${stage}" ]] ||
+            [[ ! -e "${destination}" && ! -L "${destination}" ]]; then
+            return "${result}"
+        fi
+    }
+    # Other GNU mv versions return success after skipping a no-clobber move.
     if [[ -d "${stage}" ]]; then
         release::internal::error 73 "destination already exists: ${destination}"
         return 73
