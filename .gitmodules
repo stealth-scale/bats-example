@@ -1,0 +1,9 @@
+[submodule "tests/helpers/bats-expect"]
+	path = tests/helpers/bats-expect
+	url = https://github.com/stealth-scale/bats-expect.git
+[submodule "tests/helpers/bats-mock"]
+	path = tests/helpers/bats-mock
+	url = https://github.com/stealth-scale/bats-mock.git
+[submodule "tests/helpers/bats-matrix"]
+	path = tests/helpers/bats-matrix
+	url = https://github.com/stealth-scale/bats-matrix.git

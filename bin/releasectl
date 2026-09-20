@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_root=$(cd -- "${BASH_SOURCE[0]%/*}/.." && pwd -P)
+# shellcheck source=src/load.bash
+source "${project_root}/src/load.bash"
+release::main "$@"
