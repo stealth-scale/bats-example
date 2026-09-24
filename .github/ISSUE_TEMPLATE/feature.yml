@@ -1,0 +1,27 @@
+name: Feature request
+description: Propose a test pattern the example does not show.
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Open this to agree the pattern first. The example exists to show the helpers at work
+        on a real application, so a new test is discussed before it is written.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you were trying to test, and where the example did not show you how.
+    validations:
+      required: true
+
+  - type: textarea
+    id: shape
+    attributes:
+      label: The shape you have in mind
+      description: The test as you would write it, where you have one. Leave it empty rather than guess.
+      render: bash
+    validations:
+      required: false
