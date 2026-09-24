@@ -18,18 +18,18 @@ sleeps are mocked; running the suite deploys nothing.
 
 This project uses helper submodules and the shared
 [bats-test](https://github.com/stealth-scale/bats-test) image, following the same
-integration as `stealthos-lib`. After cloning a published checkout:
+integration as `stealthos-lib`. Clone it with its submodules:
 
 ```sh
-git submodule update --init --recursive
+git clone --recurse-submodules https://github.com/stealth-scale/bats-example.git
+cd bats-example
 make test                         # Podman
 make test RUNTIME=docker           # Docker
 make test TARGET=tests/publish.bats
 make test-reports                 # Verifies the deliberately failing examples
 ```
 
-For the initial, unpublished checkout, register the submodules first using
-[the bootstrap instructions](CONTRIBUTING.md#initial-repository-bootstrap).
+In an existing clone, `git submodule update --init --recursive` restores the helpers.
 Make never installs dependencies or changes Git state.
 
 Container tests use a read-only checkout, no network and no Linux capabilities.
@@ -235,9 +235,9 @@ CI runs Bash 4.4, 5.1, 5.2 and 5.3 with bats-core 1.7.0 and 1.14.0, a Fedora con
 Ubuntu/macOS host jobs with both Bats versions, lint and Fedora coverage. Normal
 tests and failure-report checks run in every test job.
 
-Submodule gitlinks record exact helper revisions. The initial baseline is
-bats-expect v1.0.0, bats-matrix v1.0.0 and bats-mock v1.0.1. Dependabot proposes
-weekly helper and GitHub Actions updates; see [CONTRIBUTING.md](CONTRIBUTING.md).
+Submodule gitlinks record exact helper revisions: bats-expect v1.0.1, bats-matrix
+v1.0.1 and bats-mock v1.2.1. Dependabot proposes weekly helper and GitHub Actions
+updates; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

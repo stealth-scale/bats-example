@@ -70,9 +70,9 @@ git submodule add https://github.com/stealth-scale/bats-expect.git tests/helpers
 git submodule add https://github.com/stealth-scale/bats-mock.git tests/helpers/bats-mock
 git submodule add https://github.com/stealth-scale/bats-matrix.git tests/helpers/bats-matrix
 
-git -C tests/helpers/bats-expect checkout --detach v1.0.0
-git -C tests/helpers/bats-mock checkout --detach v1.0.1
-git -C tests/helpers/bats-matrix checkout --detach v1.0.0
+git -C tests/helpers/bats-expect checkout --detach v1.0.1
+git -C tests/helpers/bats-mock checkout --detach v1.2.1
+git -C tests/helpers/bats-matrix checkout --detach v1.0.1
 
 git add .gitmodules tests/helpers/bats-expect tests/helpers/bats-mock tests/helpers/bats-matrix
 make check
