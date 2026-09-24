@@ -6,7 +6,7 @@ teardown() { common_teardown; }
 
 @test "release::publish: successful upload -> sends exact argv and the complete manifest" {
     prepare_bundle
-    mock curl "* $API_URL/releases" 'cat >/dev/null; printf "accepted\n"'
+    mock -stdin curl "* $API_URL/releases" 'cat >/dev/null; printf "accepted\n"'
     run release::publish "$BUNDLE_DIR/manifest.json" "$API_URL"
     assert_success
     assert_output accepted
@@ -23,7 +23,7 @@ teardown() { common_teardown; }
 
 @test "release::publish: transient failure -> retries with the entire body and in order" {
     prepare_bundle
-    mock_sequence curl '*' \
+    mock_sequence -stdin curl '*' \
         'cat >/dev/null; return 7' \
         'cat >/dev/null; printf "accepted\n"'
     run release::publish "$BUNDLE_DIR/manifest.json" "$API_URL"
@@ -68,7 +68,7 @@ teardown() { common_teardown; }
     prepare_bundle production
     local staging="$BATS_TEST_TMPDIR/staging bundle"
     release::prepare v1.2.3 staging "$staging" >/dev/null
-    mock curl '*' 'cat >/dev/null; return 7'
+    mock -stdin curl '*' 'cat >/dev/null; return 7'
 
     # These are trusted test paths. An unquoted delimiter allows their expansion.
     run_matrix release::publish <<CASES
@@ -101,7 +101,7 @@ CASES
     prepare_bundle production
     local staging="$BATS_TEST_TMPDIR/staging bundle"
     release::prepare v1.2.3 staging "$staging" >/dev/null
-    mock curl '*' 'cat >/dev/null; printf "accepted\n"'
+    mock -stdin curl '*' 'cat >/dev/null; printf "accepted\n"'
     publish_both() {
         local first second result=0
         release::publish "$BUNDLE_DIR/manifest.json" "$API_URL" >/dev/null &
@@ -248,7 +248,7 @@ CASES
     local payload
     payload="$(< "${BUNDLE_DIR}/manifest.json")"$'\n'
     # shellcheck disable=SC2016  # the action mutates the source after the first upload
-    mock_sequence curl '*' \
+    mock_sequence -stdin curl '*' \
         'cat >/dev/null; printf broken > "$BUNDLE_DIR/manifest.json"; return 7' \
         'cat >/dev/null; printf accepted'
     run release::publish "${BUNDLE_DIR}/manifest.json" "${API_URL}"

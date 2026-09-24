@@ -50,7 +50,7 @@ CASES
 
 @test "release::main: publish -> exported command mock intercepts the child Bash process" {
     prepare_bundle
-    mock curl '*' 'cat >/dev/null; printf "accepted\n"'
+    mock -stdin curl '*' 'cat >/dev/null; printf "accepted\n"'
     run "$EXAMPLE_ROOT/bin/releasectl" publish "$BUNDLE_DIR/manifest.json" "$API_URL"
     assert_success
     assert_output accepted

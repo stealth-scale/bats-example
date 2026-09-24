@@ -49,7 +49,7 @@ teardown() { common_teardown; }
 }
 
 @test "mock_spy: finite pipeline -> forwards output and records stdin" {
-    mock_spy head
+    mock_spy -stdin head
     # A wrapper keeps the pipeline inside run rather than piping Bats' own output.
     # shellcheck disable=SC2312  # common_setup enables pipefail for the whole pipeline
     preview_plan() { release::plan v1.2.3 production | head -n 1; }
